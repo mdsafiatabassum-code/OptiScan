@@ -1,0 +1,97 @@
+import { useRef, type ChangeEvent } from 'react';
+import { Microscope } from 'lucide-react';
+import { AnalysisProgress } from '@/components/screening/AnalysisProgress';
+import { Button } from '@/components/common/Button';
+import { InlineAlert } from '@/components/common/InlineAlert';
+import { ImageDropzone } from '@/components/screening/ImageDropzone';
+import { SelectedImagePanel } from '@/components/screening/SelectedImagePanel';
+import { IMAGE_INPUT_ACCEPT } from '@/lib/imageValidation';
+import type { AnalysisState } from '@/types/screening';
+
+interface ImageUploadCardProps {
+  file: File | null;
+  previewUrl: string | null;
+  uploadError: string | null;
+  analysis: AnalysisState;
+  onSelectFile: (file: File) => void;
+  onClearImage: () => void;
+  onAnalyse: () => void;
+}
+
+export function ImageUploadCard({
+  file,
+  previewUrl,
+  uploadError,
+  analysis,
+  onSelectFile,
+  onClearImage,
+  onAnalyse,
+}: ImageUploadCardProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openFilePicker() {
+    inputRef.current?.click();
+  }
+
+  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0];
+    event.target.value = '';
+    if (selected) onSelectFile(selected);
+  }
+
+  const hasImage = file !== null && previewUrl !== null;
+  const isBusy = analysis.phase === 'uploading' || analysis.phase === 'analysing';
+
+  return (
+    <section className="surface-card flex flex-col gap-6 p-6 sm:p-8" aria-labelledby="upload-heading">
+      <div>
+        <h2 id="upload-heading" className="text-lg font-bold text-navy-900">
+          Upload retinal image
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-navy-600">
+          {hasImage
+            ? 'Check the preview, then run the analysis when you are ready.'
+            : 'Select a fundus photograph from your device to begin.'}
+        </p>
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept={IMAGE_INPUT_ACCEPT}
+        onChange={handleInputChange}
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+
+      {hasImage ? (
+        <SelectedImagePanel file={file} previewUrl={previewUrl} onReplace={openFilePicker} onRemove={onClearImage} />
+      ) : (
+        <ImageDropzone onBrowse={openFilePicker} onFileDrop={onSelectFile} />
+      )}
+
+      {uploadError && <InlineAlert tone="error" title="Image not accepted">{uploadError}</InlineAlert>}
+
+      {hasImage && (
+        <div className="flex flex-col gap-4 border-t border-navy-100 pt-6">
+          {analysis.phase === 'error' && (
+            <InlineAlert tone="error" title="Analysis failed">
+              {analysis.message}
+            </InlineAlert>
+          )}
+          {(analysis.phase === 'uploading' || analysis.phase === 'analysing') && (
+            <AnalysisProgress
+              phase={analysis.phase}
+              progress={analysis.phase === 'uploading' ? analysis.progress : 1}
+            />
+          )}
+          <Button size="lg" fullWidth onClick={onAnalyse} disabled={isBusy} aria-busy={isBusy}>
+            <Microscope className="h-5 w-5" aria-hidden="true" />
+            {analysis.phase === 'error' ? 'Try analysis again' : 'Analyse Image'}
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+}
