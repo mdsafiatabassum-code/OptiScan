@@ -152,6 +152,17 @@ No API keys or secrets are required by either service.
 
 The `render.yaml` blueprint defines two services: a Python web service for the API and a static site for the frontend.
 
+### Python version
+
+The backend is pinned to **Python 3.11.9**. The pinned ONNX Runtime (`onnxruntime==1.20.1`) publishes wheels for Python 3.11 to 3.13 only, so a service that defaults to a newer Python fails with `Could not find a version that satisfies the requirement onnxruntime==1.20.1`.
+
+The version is set in two places, which are kept in sync:
+
+- `backend/.python-version` (contains `3.11.9`)
+- `PYTHON_VERSION=3.11.9` in the Render environment (set in `render.yaml` and required on manual services)
+
+Render keeps the Python version a service was created with. Changing `render.yaml` does not change a backend service that already exists, so add `PYTHON_VERSION` to that service's Environment page as described below.
+
 ### Option A: blueprint
 
 1. In Render, choose New, then Blueprint, and connect this repository.
@@ -175,6 +186,14 @@ The `render.yaml` blueprint defines two services: a Python web service for the A
 - Publish directory: `dist`
 - Environment: `VITE_API_BASE_URL=<backend URL>`
 - Rewrite rule: source `/*`, destination `/index.html`, action Rewrite
+
+### Redeploying an existing backend after the Python fix
+
+1. Open the backend service in Render, go to Environment, and add `PYTHON_VERSION` with the value `3.11.9`. Save.
+2. Open Manual Deploy and choose Clear build cache & deploy, so the failed install is not reused.
+3. Check the build log shows Python 3.11.9 and that `onnxruntime 1.20.1` installs.
+4. Open `<backend URL>/api/health`. It should show `"loaded": true` once the model has downloaded.
+5. If it shows `"loaded": false`, check the service logs for a model download or checksum message.
 
 ### Order and checks
 
