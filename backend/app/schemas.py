@@ -37,6 +37,20 @@ class ImageSummary(CamelModel):
     height: int
 
 
+class QualityCheckResult(CamelModel):
+    code: str
+    label: str
+    status: Literal["passed", "failed"]
+    value: float
+    message: str
+
+
+class ImageQuality(CamelModel):
+    status: Literal["passed"]
+    checks: list[QualityCheckResult]
+    note: str
+
+
 class Explainability(CamelModel):
     status: Literal["pending"]
     method: None
@@ -55,6 +69,7 @@ class ScreeningReport(CamelModel):
     next_steps: list[str]
     disclaimer: str
     image: ImageSummary
+    quality: ImageQuality
     explainability: Explainability
 
 

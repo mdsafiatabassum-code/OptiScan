@@ -9,9 +9,18 @@ from app.config import Settings
 MAX_BYTES = 2 * 1024 * 1024
 
 
-def make_image_bytes(fmt: str = "JPEG", size: tuple[int, int] = (320, 240)) -> bytes:
+def make_image_bytes(
+    fmt: str = "JPEG",
+    size: tuple[int, int] = (320, 240),
+    offset: float = 0.0,
+) -> bytes:
+    width, height = size
+    xs = np.arange(width, dtype=np.float32)[np.newaxis, :]
+    ys = np.arange(height, dtype=np.float32)[:, np.newaxis]
+    texture = 128 + offset + 60 * np.sin(xs / 3.0) * np.cos(ys / 5.0)
+    pixels = np.repeat(np.clip(texture, 0, 255)[..., np.newaxis], 3, axis=2).astype(np.uint8)
     buffer = BytesIO()
-    Image.new("RGB", size, color=(180, 90, 60)).save(buffer, format=fmt)
+    Image.fromarray(pixels, mode="RGB").save(buffer, format=fmt)
     return buffer.getvalue()
 
 

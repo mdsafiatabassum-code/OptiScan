@@ -1,9 +1,10 @@
 import { useRef, type ChangeEvent } from 'react';
-import { Microscope } from 'lucide-react';
+import { Microscope, Upload } from 'lucide-react';
 import { AnalysisProgress } from '@/components/screening/AnalysisProgress';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { ImageDropzone } from '@/components/screening/ImageDropzone';
+import { QualityChecksList } from '@/components/screening/QualityChecksList';
 import { SelectedImagePanel } from '@/components/screening/SelectedImagePanel';
 import { IMAGE_INPUT_ACCEPT } from '@/lib/imageValidation';
 import type { AnalysisState } from '@/types/screening';
@@ -41,6 +42,7 @@ export function ImageUploadCard({
 
   const hasImage = file !== null && previewUrl !== null;
   const isBusy = analysis.phase === 'uploading' || analysis.phase === 'analysing';
+  const isQualityRejected = analysis.phase === 'quality_rejected';
 
   return (
     <section className="surface-card flex flex-col gap-6 p-6 sm:p-8" aria-labelledby="upload-heading">
@@ -80,16 +82,31 @@ export function ImageUploadCard({
               {analysis.message}
             </InlineAlert>
           )}
+          {isQualityRejected && (
+            <div className="flex flex-col gap-5">
+              <InlineAlert tone="warning" title="This photograph needs replacing">
+                {analysis.message}
+              </InlineAlert>
+              <QualityChecksList checks={analysis.checks} />
+            </div>
+          )}
           {(analysis.phase === 'uploading' || analysis.phase === 'analysing') && (
             <AnalysisProgress
               phase={analysis.phase}
               progress={analysis.phase === 'uploading' ? analysis.progress : 1}
             />
           )}
-          <Button size="lg" fullWidth onClick={onAnalyse} disabled={isBusy} aria-busy={isBusy}>
-            <Microscope className="h-5 w-5" aria-hidden="true" />
-            {analysis.phase === 'error' ? 'Try analysis again' : 'Analyse Image'}
-          </Button>
+          {isQualityRejected ? (
+            <Button size="lg" fullWidth onClick={openFilePicker}>
+              <Upload className="h-5 w-5" aria-hidden="true" />
+              Choose a different image
+            </Button>
+          ) : (
+            <Button size="lg" fullWidth onClick={onAnalyse} disabled={isBusy} aria-busy={isBusy}>
+              <Microscope className="h-5 w-5" aria-hidden="true" />
+              {analysis.phase === 'error' ? 'Try analysis again' : 'Analyse Image'}
+            </Button>
+          )}
         </div>
       )}
     </section>

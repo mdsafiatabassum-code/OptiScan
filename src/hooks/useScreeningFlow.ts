@@ -71,6 +71,10 @@ export function useScreeningFlow() {
       if (!controller.signal.aborted) setAnalysis({ phase: 'complete', report });
     } catch (error) {
       if (controller.signal.aborted) return;
+      if (error instanceof AnalysisError && error.code === 'quality_rejected') {
+        setAnalysis({ phase: 'quality_rejected', message: error.message, checks: error.checks });
+        return;
+      }
       const message = error instanceof AnalysisError ? error.message : UNEXPECTED_ERROR_MESSAGE;
       setAnalysis({ phase: 'error', message });
     } finally {

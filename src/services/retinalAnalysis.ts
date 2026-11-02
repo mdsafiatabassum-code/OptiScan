@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '@/config/env';
-import { parseScreeningReport } from '@/services/parseScreeningReport';
-import type { ScreeningReport } from '@/types/screening';
+import { parseQualityChecks, parseScreeningReport } from '@/services/parseScreeningReport';
+import type { QualityCheck, ScreeningReport } from '@/types/screening';
 
 export type AnalysisErrorCode =
   | 'not_configured'
@@ -8,17 +8,20 @@ export type AnalysisErrorCode =
   | 'timeout'
   | 'aborted'
   | 'rejected'
+  | 'quality_rejected'
   | 'unavailable'
   | 'server'
   | 'invalid_response';
 
 export class AnalysisError extends Error {
   readonly code: AnalysisErrorCode;
+  readonly checks: QualityCheck[];
 
-  constructor(code: AnalysisErrorCode, message: string) {
+  constructor(code: AnalysisErrorCode, message: string, checks: QualityCheck[] = []) {
     super(message);
     this.name = 'AnalysisError';
     this.code = code;
+    this.checks = checks;
   }
 }
 
@@ -31,6 +34,15 @@ interface AnalyseOptions {
 const REQUEST_TIMEOUT_MS = 120_000;
 const ANALYSES_PATH = '/api/v1/analyses';
 
+function qualityChecksFrom(details: unknown): QualityCheck[] | null {
+  if (typeof details !== 'object' || details === null || !('checks' in details)) return null;
+  try {
+    return parseQualityChecks(details.checks);
+  } catch {
+    return null;
+  }
+}
+
 function errorFromResponse(status: number, body: unknown): AnalysisError {
   if (status === 503) {
     return new AnalysisError(
@@ -39,14 +51,16 @@ function errorFromResponse(status: number, body: unknown): AnalysisError {
     );
   }
   if (status >= 400 && status < 500) {
-    const message =
+    const error =
       typeof body === 'object' && body !== null && 'error' in body
-        ? (body as { error?: { message?: unknown } }).error?.message
+        ? (body as { error?: { code?: unknown; message?: unknown; details?: unknown } }).error
         : undefined;
-    return new AnalysisError(
-      'rejected',
-      typeof message === 'string' ? message : 'The image was rejected by the analysis service.',
-    );
+    const message = typeof error?.message === 'string' ? error.message : 'The image was rejected by the analysis service.';
+    if (error?.code === 'image_quality_failed') {
+      const checks = qualityChecksFrom(error.details);
+      if (checks) return new AnalysisError('quality_rejected', message, checks);
+    }
+    return new AnalysisError('rejected', message);
   }
   return new AnalysisError('server', 'The analysis failed on the server, so no report was generated. Please try again.');
 }

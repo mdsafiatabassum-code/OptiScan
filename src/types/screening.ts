@@ -4,6 +4,14 @@ export interface ClassProbability {
   probability: number;
 }
 
+export interface QualityCheck {
+  code: string;
+  label: string;
+  status: 'passed' | 'failed';
+  value: number;
+  message: string;
+}
+
 export interface ScreeningReport {
   reportId: string;
   generatedAt: string;
@@ -31,6 +39,11 @@ export interface ScreeningReport {
     width: number;
     height: number;
   };
+  quality: {
+    status: 'passed';
+    checks: QualityCheck[];
+    note: string;
+  };
   explainability: {
     status: 'pending';
     method: null;
@@ -43,4 +56,5 @@ export type AnalysisState =
   | { phase: 'uploading'; progress: number }
   | { phase: 'analysing' }
   | { phase: 'complete'; report: ScreeningReport }
+  | { phase: 'quality_rejected'; message: string; checks: QualityCheck[] }
   | { phase: 'error'; message: string };

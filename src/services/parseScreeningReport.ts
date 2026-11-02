@@ -1,4 +1,4 @@
-import type { ScreeningReport } from '@/types/screening';
+import type { QualityCheck, ScreeningReport } from '@/types/screening';
 
 type JsonObject = Record<string, unknown>;
 
@@ -47,6 +47,35 @@ function readProbabilities(source: JsonObject): ScreeningReport['probabilities']
   });
 }
 
+function readQualityStatus(value: unknown): QualityCheck['status'] {
+  if (value === 'passed' || value === 'failed') return value;
+  throw new TypeError('Unexpected quality check status');
+}
+
+export function parseQualityChecks(value: unknown): QualityCheck[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected quality check list');
+  return value.map((item) => {
+    if (!isObject(item)) throw new TypeError('Expected quality check entry');
+    return {
+      code: readString(item, 'code'),
+      label: readString(item, 'label'),
+      status: readQualityStatus(item.status),
+      value: readNumber(item, 'value'),
+      message: readString(item, 'message'),
+    };
+  });
+}
+
+function readQuality(source: JsonObject): ScreeningReport['quality'] {
+  const quality = readObject(source, 'quality');
+  if (quality.status !== 'passed') throw new TypeError('Unexpected quality status');
+  return {
+    status: 'passed',
+    checks: parseQualityChecks(quality.checks),
+    note: readString(quality, 'note'),
+  };
+}
+
 export function parseScreeningReport(payload: unknown): ScreeningReport {
   if (!isObject(payload)) throw new TypeError('Report is not an object');
   if (payload.status !== 'completed') throw new TypeError('Report is not completed');
@@ -87,6 +116,7 @@ export function parseScreeningReport(payload: unknown): ScreeningReport {
       width: readNumber(image, 'width'),
       height: readNumber(image, 'height'),
     },
+    quality: readQuality(payload),
     explainability: {
       status: 'pending',
       method: null,

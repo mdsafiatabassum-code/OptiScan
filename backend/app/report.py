@@ -15,12 +15,15 @@ from app.model_info import (
     NEXT_STEPS_BY_GRADE,
     SAFETY_NEXT_STEP,
 )
+from app.quality import QUALITY_NOTE, QualityAssessment
 from app.schemas import (
     ClassProbability,
     Explainability,
+    ImageQuality,
     ImageSummary,
     ModelInfo,
     PredictedGrade,
+    QualityCheckResult,
     ScreeningReport,
 )
 from app.validation import ValidatedImage
@@ -31,7 +34,11 @@ EXPLAINABILITY_NOTE = (
 )
 
 
-def build_report(probabilities: list[float], image: ValidatedImage) -> ScreeningReport:
+def build_report(
+    probabilities: list[float],
+    image: ValidatedImage,
+    quality: QualityAssessment,
+) -> ScreeningReport:
     top = max(range(len(probabilities)), key=lambda index: probabilities[index])
     label = GRADE_LABELS[top]
     top_percent = round(probabilities[top] * 100)
@@ -71,6 +78,20 @@ def build_report(probabilities: list[float], image: ValidatedImage) -> Screening
             size_bytes=image.size_bytes,
             width=image.width,
             height=image.height,
+        ),
+        quality=ImageQuality(
+            status="passed",
+            checks=[
+                QualityCheckResult(
+                    code=check.code,
+                    label=check.label,
+                    status=check.status,
+                    value=check.value,
+                    message=check.message,
+                )
+                for check in quality.checks
+            ],
+            note=QUALITY_NOTE,
         ),
         explainability=Explainability(status="pending", method=None, note=EXPLAINABILITY_NOTE),
     )

@@ -46,11 +46,32 @@ def test_successful_analysis_returns_model_output_only(client, fake_session):
     assert body["explainability"] == {"status": "pending", "method": None, "note": body["explainability"]["note"]}
     assert body["image"] == {"format": "JPEG", "sizeBytes": body["image"]["sizeBytes"], "width": 320, "height": 240}
     assert "filename" not in body["image"]
+    assert body["quality"]["status"] == "passed"
+    assert [check["code"] for check in body["quality"]["checks"]] == ["brightness_ok", "sharpness_ok"]
+    assert all(check["status"] == "passed" for check in body["quality"]["checks"])
+    assert body["quality"]["note"]
     assert body["disclaimer"]
     assert body["limitations"]
     assert body["nextSteps"]
     assert body["generatedAt"]
     assert body["reportId"]
+
+
+def test_analysis_rejects_unsuitable_image_before_inference(client, fake_session):
+    response = _upload(client, make_image_bytes("JPEG", offset=-115))
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "image_quality_failed"
+    assert "predictedGrade" not in body
+    assert body["error"]["details"]["checks"] == [
+        {
+            "code": "too_dark",
+            "label": "Overall brightness",
+            "status": "failed",
+            "message": "The image is too dark for a reliable analysis. Try a brighter, evenly lit photograph.",
+        }
+    ]
+    assert fake_session.calls == 0
 
 
 def test_analysis_rejects_unsupported_format(client, fake_session):

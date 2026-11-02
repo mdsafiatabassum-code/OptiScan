@@ -48,7 +48,10 @@ def create_app(settings: Settings | None = None, model_state: ModelState | None 
 
     @app.exception_handler(AppError)
     async def handle_app_error(_: Request, exc: AppError) -> JSONResponse:
-        return JSONResponse(status_code=exc.status_code, content=error_body(exc.code, exc.message))
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=error_body(exc.code, exc.message, exc.details),
+        )
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(_: Request, __: RequestValidationError) -> JSONResponse:

@@ -1,11 +1,13 @@
-import { ClipboardList, Cpu, Focus, RotateCcw, ShieldAlert, Stethoscope } from 'lucide-react';
+import { ClipboardList, Cpu, Download, Focus, RotateCcw, ShieldAlert, Stethoscope, Sparkles } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { ProbabilityCard } from '@/components/screening/ProbabilityCard';
+import { QualityChecksList } from '@/components/screening/QualityChecksList';
 import { ResultCard } from '@/components/screening/ResultCard';
 import { VisualExplanationCard } from '@/components/screening/VisualExplanationCard';
 import { formatFileSize } from '@/lib/imageValidation';
 import { formatReportTimestamp } from '@/lib/reportFormat';
+import { createReportPdf } from '@/lib/reportPdf';
 import type { ScreeningReport } from '@/types/screening';
 
 interface ResultsViewProps {
@@ -14,12 +16,42 @@ interface ResultsViewProps {
   onAnalyseAnother: () => void;
 }
 
+function downloadReportPdf(report: ScreeningReport) {
+  const url = URL.createObjectURL(createReportPdf(report));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `optiscan-report-${report.reportId.slice(0, 8)}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+const LABEL_CLASS = 'text-xs font-semibold uppercase tracking-wide text-navy-500';
+
 export function ResultsView({ report, previewUrl, onAnalyseAnother }: ResultsViewProps) {
-  const { predictedGrade, image, model } = report;
+  const { predictedGrade, image, model, quality } = report;
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in-up">
-      <InlineAlert tone="warning" title="Screening estimate, not a diagnosis">
+      <section className="surface-card flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <dl className="grid gap-4 sm:grid-cols-2 sm:gap-x-10">
+          <div>
+            <dt className={LABEL_CLASS}>Screening reference ID</dt>
+            <dd className="mt-1 break-all font-mono text-sm font-semibold text-navy-900">{report.reportId}</dd>
+          </div>
+          <div>
+            <dt className={LABEL_CLASS}>Analysis timestamp</dt>
+            <dd className="mt-1 font-semibold text-navy-900">{formatReportTimestamp(report.generatedAt)}</dd>
+          </div>
+        </dl>
+        <Button size="lg" onClick={() => downloadReportPdf(report)}>
+          <Download className="h-5 w-5" aria-hidden="true" />
+          Download PDF report
+        </Button>
+      </section>
+
+      <InlineAlert tone="warning" title="Research prototype. Screening estimate, not a diagnosis.">
         {report.disclaimer}
       </InlineAlert>
 
@@ -29,33 +61,35 @@ export function ResultsView({ report, previewUrl, onAnalyseAnother }: ResultsVie
             <p className="text-2xl font-bold tracking-tight text-navy-900">{predictedGrade.label}</p>
             <p className="font-medium text-navy-700">{predictedGrade.description}</p>
             <p>{report.explanation}</p>
-            <p className="text-xs text-navy-500">Report generated {formatReportTimestamp(report.generatedAt)}</p>
           </div>
         </ResultCard>
 
         <ProbabilityCard probabilities={report.probabilities} predictedIndex={predictedGrade.index} />
 
-        <ResultCard icon={Focus} title="Image details" badge="Accepted">
+        <ResultCard icon={Focus} title="Image details">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Format</dt>
+              <dt className={LABEL_CLASS}>Format</dt>
               <dd className="mt-1 font-semibold text-navy-900">{image.format}</dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">File size</dt>
+              <dt className={LABEL_CLASS}>File size</dt>
               <dd className="mt-1 font-semibold text-navy-900">{formatFileSize(image.sizeBytes)}</dd>
             </div>
             <div className="col-span-2">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Dimensions</dt>
+              <dt className={LABEL_CLASS}>Dimensions</dt>
               <dd className="mt-1 font-semibold text-navy-900">
                 {image.width} × {image.height} px
               </dd>
             </div>
           </dl>
-          <p className="mt-4">
-            The model does not report image quality. Check that the photograph is sharp, evenly lit and shows the full
-            retina.
-          </p>
+        </ResultCard>
+
+        <ResultCard icon={Sparkles} title="Image quality" badge="Passed">
+          <div className="flex flex-col gap-5">
+            <QualityChecksList checks={quality.checks} />
+            <p className="text-sm leading-relaxed text-navy-600">{quality.note}</p>
+          </div>
         </ResultCard>
 
         <VisualExplanationCard previewUrl={previewUrl} note={report.explainability.note} />
@@ -83,21 +117,21 @@ export function ResultsView({ report, previewUrl, onAnalyseAnother }: ResultsVie
         <ResultCard icon={Cpu} title="About this analysis" className="lg:col-span-2">
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Model</dt>
+              <dt className={LABEL_CLASS}>Model</dt>
               <dd className="mt-1 break-all font-semibold text-navy-900">
                 {model.name} ({model.version})
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Licence</dt>
+              <dt className={LABEL_CLASS}>Licence</dt>
               <dd className="mt-1 font-semibold text-navy-900">{model.license}</dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Intended use</dt>
+              <dt className={LABEL_CLASS}>Intended use</dt>
               <dd className="mt-1">{model.intendedUse}</dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">Source</dt>
+              <dt className={LABEL_CLASS}>Source</dt>
               <dd className="mt-1 break-all">
                 <a
                   href={model.source}

@@ -10,10 +10,12 @@ OptiScan is a research prototype. It is not a medical device, has not been clini
 
 - Landing page, navigation, mobile menu and screening page.
 - Image upload with drag and drop or browse, JPG/JPEG/PNG only, 10 MB limit, preview, replace and remove.
+- Preliminary technical quality checks (brightness and sharpness) before analysis. A photograph that fails is not analysed; the screen explains which check failed and lets you choose a different image.
 - Upload progress bar, analysis loading state and clear error messages. No report is shown when analysis fails.
 - Backend API (`backend/`) that validates the image, runs the pretrained model (ONNX Runtime, CPU) and returns the model's probabilities as JSON.
-- Report screen showing the predicted ICDR grade, the model's probabilities, a plain-language explanation, limitations, next steps, model licence and the report time.
-- Automated tests for file validation, API responses, model-unavailable handling and checksum handling. The real-model tests run when the model file is present.
+- Report screen with a screening reference ID, analysis timestamp, image details, the predicted ICDR grade, all five raw class scores, the quality checks, limitations, next steps, model licence and a research-prototype disclaimer.
+- Downloadable PDF of the report, generated in the browser. The image itself is not included in the PDF.
+- Automated tests for file validation, image-quality checks, API responses, model-unavailable handling and checksum handling. The real-model tests run when the model file is present.
 
 ## What needs configuration
 
@@ -24,6 +26,7 @@ OptiScan is a research prototype. It is not a medical device, has not been clini
 ## What is pending
 
 - **Heatmap / visual explanation:** not implemented. The ONNX export of this model has no verified explanation method, so the report shows "Heatmap pending" instead of a fabricated highlight. A Grad-CAM style method would need the original PyTorch checkpoint and a gradient-capable runtime, which are not included here.
+- **Image-quality thresholds:** the brightness and sharpness defaults are preliminary and have not been calibrated on labelled retinal photographs. They are configurable (see below). The checks do not establish whether a photograph is clinically adequate.
 - **Clinical validation:** the model's accuracy is self-reported by its author (about 82% on a held-out split of a rebalanced training set). It has not been validated on your population, cameras or clinical setting.
 - **Commercial use:** the model is licensed CC BY-NC 4.0, which prohibits commercial use. See the licence section below.
 
@@ -114,14 +117,15 @@ npm run lint       # ESLint
 | GET | `/api/health` | Service status and whether the model is loaded. Always returns 200 while the process is running. |
 | POST | `/api/v1/analyses` | Multipart upload with a field named `file`. Returns a screening report. |
 
-Successful responses return HTTP 200 with a JSON report: `reportId`, `generatedAt`, `model`, `predictedGrade`, `probabilities`, `explanation`, `limitations`, `nextSteps`, `disclaimer`, `image` and `explainability` (always `pending` for now).
+Successful responses return HTTP 200 with a JSON report: `reportId`, `generatedAt`, `model`, `predictedGrade`, `probabilities`, `explanation`, `limitations`, `nextSteps`, `disclaimer`, `image`, `quality` and `explainability` (always `pending` for now).
 
-Errors use one shape: `{"error": {"code": "...", "message": "..."}}`.
+Errors use one shape: `{"error": {"code": "...", "message": "..."}}`. The 422 response for a failed quality check also includes `details.checks`, a list of the failed checks with `code`, `label`, `status` and `message`.
 
 | Status | Code | Meaning |
 | --- | --- | --- |
 | 400 | `missing_file`, `empty_file`, `unsupported_format`, `invalid_image`, `image_too_small`, `image_dimensions_too_large` | The upload was rejected |
 | 413 | `file_too_large` | Larger than `MAX_UPLOAD_MB` |
+| 422 | `image_quality_failed` | The photograph failed a technical quality check. No report is returned and the model is not run. |
 | 500 | `inference_failed`, `internal_error` | Analysis failed on the server. No report is returned. |
 | 503 | `model_unavailable` | The model file is missing or failed to load. No report is returned. |
 
@@ -136,6 +140,9 @@ Errors use one shape: `{"error": {"code": "...", "message": "..."}}`.
 | `MODEL_URL` | Hugging Face link above | Download source if `MODEL_PATH` is missing. Set to an empty value to disable downloads. |
 | `MODEL_SHA256` | Pinned checksum above | The model is rejected if its checksum differs |
 | `MAX_UPLOAD_MB` | `10` | Largest accepted upload |
+| `QUALITY_MIN_MEAN_BRIGHTNESS` | `25` | Images whose mean grey level (0-255) is below this are rejected as too dark. Preliminary, uncalibrated. |
+| `QUALITY_MAX_MEAN_BRIGHTNESS` | `235` | Images whose mean grey level is above this are rejected as too bright. Preliminary, uncalibrated. |
+| `QUALITY_MIN_SHARPNESS` | `5` | Images whose Laplacian variance (on the grey image scaled to at most 512 px) is below this are rejected as blurred. Preliminary, uncalibrated; it only catches strongly out-of-focus images. |
 | `PORT` | set by Render | Port for the start command (`uvicorn ... --port $PORT`) |
 
 ### Frontend (project root)
@@ -147,6 +154,12 @@ Errors use one shape: `{"error": {"code": "...", "message": "..."}}`.
 Vite embeds `VITE_*` values in the built site. They are public, so never put secrets in them. Set this variable before building; if you change it, rebuild and redeploy the frontend.
 
 No API keys or secrets are required by either service.
+
+## Privacy and data handling
+
+- Uploaded images are read into memory for validation and analysis. They are not written to disk or stored in a database, and the file name is not returned or logged.
+- Reports are not saved on the server. The reference ID is a random identifier generated for each analysis, and the PDF is created in the browser when you choose to download it.
+- Error responses use fixed, generic messages and never include internal details.
 
 ## Deploying on Render
 
@@ -220,27 +233,28 @@ src/
     common/                     Shared UI (buttons, logo, alerts, section headers)
     layout/                     Header, footer and page layout
     landing/                    Landing page sections
-    screening/                  Upload card, dropzone, preview, progress, report sections
-  hooks/useScreeningFlow.ts     Screening state: selection, validation, upload and analysis
+    screening/                  Upload card, dropzone, preview, progress, quality checks, report sections
+  hooks/useScreeningFlow.ts     Screening state: selection, validation, upload, analysis and quality rejection
   services/
     retinalAnalysis.ts          Upload to the API with progress and error mapping
     parseScreeningReport.ts     Checks the API response shape
-  lib/                          Routing, image validation, formatting and class name helpers
+  lib/                          Routing, image validation, formatting, PDF writer and report PDF layout
   config/                       Navigation links and API address
   types/screening.ts            Report and analysis state types
 backend/
   app/
     main.py                     FastAPI app, CORS, error handling, routes wiring
-    config.py                   Environment settings
+    config.py                   Environment settings, including quality thresholds
     model_info.py               Model metadata, labels, limitations and advice
     model_store.py              Model download and checksum verification
     model_state.py              Model loading at startup
     inference.py                Preprocessing, ONNX inference and softmax
     validation.py               Upload type, size and image checks
+    quality.py                  Preliminary brightness and sharpness checks
     report.py                   Builds the report from model output
     schemas.py                  Response models
     routes/                     Health and analysis endpoints
-  tests/                        Validation, API, model store and real-model tests
+  tests/                        Validation, quality, API, model store and real-model tests
   requirements.txt              Runtime dependencies (pinned)
   requirements-dev.txt          Adds pytest
 ```
