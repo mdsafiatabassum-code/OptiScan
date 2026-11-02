@@ -20,7 +20,7 @@ const steps: Step[] = [
     icon: ScanSearch,
     title: 'AI-assisted image analysis',
     description:
-      'The AI model reviews the image and reports the most likely severity category, with the probabilities it produces.',
+      'Basic quality checks run first. The AI model then reviews the image and reports its five raw severity scores.',
   },
   {
     icon: ClipboardCheck,
@@ -32,35 +32,35 @@ const steps: Step[] = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 bg-secondary-50/60 py-20 sm:py-24">
+    <section id="how-it-works" className="scroll-mt-20 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeader
           eyebrow="How it works"
-          title="Three simple steps from image to next steps"
+          title="Three steps from image to next steps"
           description="OptiScan keeps screening straightforward for healthcare workers, so attention stays on the patient."
         />
 
         <div className="relative mt-14">
           <div
             aria-hidden="true"
-            className="absolute left-[16%] right-[16%] top-7 hidden h-px bg-gradient-to-r from-brand-200 via-accent-300 to-brand-200 md:block"
+            className="absolute left-[16%] right-[16%] top-7 hidden h-px bg-gradient-to-r from-primary-400/0 via-primary-300/50 to-primary-400/0 md:block"
           />
           <ol className="grid gap-6 md:grid-cols-3">
             {steps.map(({ icon: Icon, title, description }, index) => (
               <li
                 key={title}
-                className="surface-card relative p-7 transition duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+                className="surface-card relative p-7 transition duration-300 hover:-translate-y-1 hover:border-primary-300/30"
               >
                 <div className="flex items-center gap-4">
-                  <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-accent-500 text-white shadow-md shadow-brand-600/25">
+                  <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary-300/25 bg-gradient-to-br from-primary-400/20 to-secondary-500/20 text-primary-100 shadow-glow">
                     <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <span className="text-sm font-semibold uppercase tracking-wider text-navy-500">
+                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
                     Step {index + 1}
                   </span>
                 </div>
-                <h3 className="mt-6 text-lg font-bold text-navy-900">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-navy-600">{description}</p>
+                <h3 className="mt-6 text-lg font-bold text-neutral-50">{title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-neutral-400">{description}</p>
               </li>
             ))}
           </ol>

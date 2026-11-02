@@ -5,13 +5,14 @@ import { AiScreeningSection } from '@/components/landing/AiScreeningSection';
 import { ChallengesSection } from '@/components/landing/ChallengesSection';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
+import { ModelInfoSection } from '@/components/landing/ModelInfoSection';
 import { scrollToHash, useLocation } from '@/lib/routing';
 
 export function LandingPage() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    document.title = 'OptiScan | Detect Early. Protect Vision.';
+    document.title = 'OptiScan | See Beyond the Image';
   }, []);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export function LandingPage() {
       <HeroSection />
       <ChallengesSection />
       <HowItWorksSection />
+      <ModelInfoSection />
       <AiScreeningSection />
       <AboutSection />
     </PageLayout>

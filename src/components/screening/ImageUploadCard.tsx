@@ -45,12 +45,12 @@ export function ImageUploadCard({
   const isQualityRejected = analysis.phase === 'quality_rejected';
 
   return (
-    <section className="surface-card flex flex-col gap-6 p-6 sm:p-8" aria-labelledby="upload-heading">
+    <section className="surface-card flex flex-col gap-8 p-6 sm:p-8" aria-labelledby="upload-heading">
       <div>
-        <h2 id="upload-heading" className="text-lg font-bold text-navy-900">
-          Upload retinal image
+        <h2 id="upload-heading" className="text-lg font-bold text-neutral-50">
+          Retinal image
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-navy-600">
+        <p className="mt-2 text-sm leading-relaxed text-neutral-400">
           {hasImage
             ? 'Check the preview, then run the analysis when you are ready.'
             : 'Select a fundus photograph from your device to begin.'}
@@ -68,15 +68,26 @@ export function ImageUploadCard({
       />
 
       {hasImage ? (
-        <SelectedImagePanel file={file} previewUrl={previewUrl} onReplace={openFilePicker} onRemove={onClearImage} />
+        <SelectedImagePanel
+          key={previewUrl}
+          file={file}
+          previewUrl={previewUrl}
+          isScanning={isBusy}
+          onReplace={openFilePicker}
+          onRemove={onClearImage}
+        />
       ) : (
         <ImageDropzone onBrowse={openFilePicker} onFileDrop={onSelectFile} />
       )}
 
-      {uploadError && <InlineAlert tone="error" title="Image not accepted">{uploadError}</InlineAlert>}
+      {uploadError && (
+        <InlineAlert tone="error" title="Image not accepted">
+          {uploadError}
+        </InlineAlert>
+      )}
 
       {hasImage && (
-        <div className="flex flex-col gap-4 border-t border-navy-100 pt-6">
+        <div className="flex flex-col gap-5 border-t border-white/10 pt-6">
           {analysis.phase === 'error' && (
             <InlineAlert tone="error" title="Analysis failed">
               {analysis.message}

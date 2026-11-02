@@ -30,7 +30,7 @@ const challenges: Challenge[] = [
 
 export function ChallengesSection() {
   return (
-    <section id="challenges" className="scroll-mt-20 bg-white py-20 sm:py-24">
+    <section id="challenges" className="scroll-mt-20 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeader
           eyebrow="The challenge"
@@ -42,13 +42,13 @@ export function ChallengesSection() {
           {challenges.map(({ icon: Icon, title, description }) => (
             <article
               key={title}
-              className="surface-card p-7 transition duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+              className="surface-card group p-7 transition duration-300 hover:-translate-y-1 hover:border-primary-300/30"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-400/10 text-primary-200 ring-1 ring-inset ring-primary-300/20">
                 <Icon className="h-6 w-6" aria-hidden="true" />
               </div>
-              <h3 className="mt-5 text-lg font-bold text-navy-900">{title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-navy-600">{description}</p>
+              <h3 className="mt-5 text-lg font-bold text-neutral-50">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-neutral-400">{description}</p>
             </article>
           ))}
         </div>

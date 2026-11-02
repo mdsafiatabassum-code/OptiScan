@@ -35,17 +35,15 @@ export function SiteHeader() {
     <header
       className={cx(
         'sticky top-0 z-50 border-b transition-all duration-300',
-        isHighlighted
-          ? 'border-navy-100 bg-white/90 shadow-sm backdrop-blur-md'
-          : 'border-transparent bg-transparent',
+        isHighlighted ? 'border-white/10 bg-canvas/85 backdrop-blur-xl' : 'border-transparent bg-transparent',
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link to="/" aria-label="OptiScan home" onClick={closeMenu} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+        <Link to="/" aria-label="OptiScan home" onClick={closeMenu} className="focus-ring rounded-lg">
           <Logo />
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => {
             const isActive = isActiveRoute(link.to, location);
             return (
@@ -54,8 +52,8 @@ export function SiteHeader() {
                 to={link.to}
                 aria-current={isActive ? 'page' : undefined}
                 className={cx(
-                  'rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-                  isActive ? 'text-brand-700' : 'text-navy-600',
+                  'focus-ring rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors',
+                  isActive ? 'text-primary-200' : 'text-neutral-300 hover:text-neutral-50',
                 )}
               >
                 {link.label}
@@ -73,7 +71,7 @@ export function SiteHeader() {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation"
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-navy-200 bg-white text-navy-800 shadow-sm transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+          className="focus-ring flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-neutral-100 transition hover:border-primary-300/40 lg:hidden"
         >
           {isMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
         </button>
@@ -83,7 +81,7 @@ export function SiteHeader() {
         <nav
           id="mobile-navigation"
           aria-label="Mobile"
-          className="animate-fade-in border-t border-navy-100 bg-white md:hidden"
+          className="animate-fade-in border-t border-white/10 bg-canvas/95 backdrop-blur-xl lg:hidden"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 sm:px-8">
             {NAV_LINKS.map((link) => {
@@ -95,8 +93,8 @@ export function SiteHeader() {
                   onClick={closeMenu}
                   aria-current={isActive ? 'page' : undefined}
                   className={cx(
-                    'rounded-xl px-4 py-3 text-base font-medium transition-colors hover:bg-brand-50 hover:text-brand-800',
-                    isActive ? 'bg-brand-50 text-brand-800' : 'text-navy-700',
+                    'focus-ring rounded-xl px-4 py-3 text-base font-semibold transition-colors',
+                    isActive ? 'bg-primary-400/10 text-primary-200' : 'text-neutral-200 hover:bg-white/5 hover:text-white',
                   )}
                 >
                   {link.label}

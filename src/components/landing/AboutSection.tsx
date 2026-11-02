@@ -32,7 +32,7 @@ const aboutBlocks: AboutBlock[] = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="scroll-mt-20 bg-secondary-50/60 py-20 sm:py-24">
+    <section id="about" className="scroll-mt-20 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
           <div className="lg:sticky lg:top-28 lg:self-start">
@@ -42,11 +42,11 @@ export function AboutSection() {
               title="Supporting clinicians where screening is hardest to reach"
               description="OptiScan is an early-stage platform exploring how AI-assisted retinal screening could support earlier identification of possible signs of diabetic retinopathy."
             />
-            <div className="mt-8 flex gap-4 rounded-2xl border border-brand-200 bg-white p-5 shadow-sm">
-              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-brand-700" aria-hidden="true" />
+            <div className="glass-panel mt-8 flex gap-4 border-primary-300/20 p-5">
+              <ShieldCheck className="mt-0.5 h-6 w-6 shrink-0 text-primary-300" aria-hidden="true" />
               <div>
-                <p className="font-semibold text-navy-900">Built to support, not replace, clinicians</p>
-                <p className="mt-2 text-sm leading-relaxed text-navy-600">
+                <p className="font-semibold text-neutral-50">Built to support, not replace, clinicians</p>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-400">
                   OptiScan is intended to assist qualified healthcare professionals. It does not diagnose conditions
                   and has not been clinically validated.
                 </p>
@@ -56,12 +56,15 @@ export function AboutSection() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             {aboutBlocks.map(({ icon: Icon, title, body }) => (
-              <article key={title} className="surface-card p-6 transition duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-700">
+              <article
+                key={title}
+                className="surface-card p-6 transition duration-300 hover:-translate-y-1 hover:border-primary-300/30"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary-500/10 text-secondary-200 ring-1 ring-inset ring-secondary-400/25">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <h3 className="mt-5 text-base font-bold text-navy-900">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-navy-600">{body}</p>
+                <h3 className="mt-5 text-base font-bold text-neutral-50">{title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-neutral-400">{body}</p>
               </article>
             ))}
           </div>

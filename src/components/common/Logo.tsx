@@ -3,17 +3,19 @@ import { cx } from '@/lib/classNames';
 
 interface LogoProps {
   className?: string;
-  tone?: 'default' | 'light';
 }
 
-export function Logo({ className, tone = 'default' }: LogoProps) {
+export function Logo({ className }: LogoProps) {
   return (
-    <span className={cx('inline-flex items-center gap-2.5', className)}>
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-md shadow-brand-600/30">
+    <span className={cx('inline-flex items-center gap-3', className)}>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary-300/30 bg-gradient-to-br from-primary-400/25 to-secondary-500/25 text-primary-200 shadow-glow">
         <Eye className="h-5 w-5" aria-hidden="true" />
       </span>
-      <span className={cx('text-lg font-bold tracking-tight', tone === 'light' ? 'text-white' : 'text-navy-900')}>
-        OptiScan
+      <span className="flex flex-col leading-none">
+        <span className="text-sm font-bold tracking-[0.22em] text-neutral-50">OPTISCAN</span>
+        <span className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+          See beyond the image
+        </span>
       </span>
     </span>
   );

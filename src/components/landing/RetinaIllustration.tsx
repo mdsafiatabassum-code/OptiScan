@@ -6,23 +6,24 @@ export function RetinaIllustration() {
       </title>
       <defs>
         <radialGradient id="retinaBase" cx="42%" cy="46%" r="62%">
-          <stop offset="0" stopColor="#F0FDFC" />
-          <stop offset="0.5" stopColor="#8FDDD7" />
-          <stop offset="1" stopColor="#0A5856" />
+          <stop offset="0" stopColor="#E0FBFF" />
+          <stop offset="0.45" stopColor="#3FB8CF" />
+          <stop offset="0.8" stopColor="#12506B" />
+          <stop offset="1" stopColor="#0A2A3F" />
         </radialGradient>
         <radialGradient id="discGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0" stopColor="#FFFFFF" />
-          <stop offset="0.6" stopColor="#CEF7FF" />
-          <stop offset="1" stopColor="#26CBEE" stopOpacity="0.6" />
+          <stop offset="0.6" stopColor="#CFFAFE" />
+          <stop offset="1" stopColor="#22D3EE" stopOpacity="0.6" />
         </radialGradient>
       </defs>
 
       <circle cx="200" cy="200" r="190" fill="url(#retinaBase)" />
-      <circle cx="200" cy="200" r="168" fill="none" stroke="#FFFFFF" strokeOpacity="0.35" strokeWidth="1.5" strokeDasharray="4 6" />
-      <circle cx="200" cy="200" r="122" fill="none" stroke="#FFFFFF" strokeOpacity="0.22" strokeWidth="1" />
-      <circle cx="200" cy="200" r="76" fill="none" stroke="#FFFFFF" strokeOpacity="0.16" strokeWidth="1" />
+      <circle cx="200" cy="200" r="168" fill="none" stroke="#FFFFFF" strokeOpacity="0.3" strokeWidth="1.5" strokeDasharray="4 6" />
+      <circle cx="200" cy="200" r="122" fill="none" stroke="#FFFFFF" strokeOpacity="0.18" strokeWidth="1" />
+      <circle cx="200" cy="200" r="76" fill="none" stroke="#FFFFFF" strokeOpacity="0.12" strokeWidth="1" />
 
-      <g fill="none" strokeLinecap="round" stroke="#0A5856" strokeOpacity="0.7">
+      <g fill="none" strokeLinecap="round" stroke="#0A2A3F" strokeOpacity="0.75">
         <path d="M130 196 C 165 150 185 118 228 84" strokeWidth="6" />
         <path d="M130 196 C 168 180 196 168 240 160" strokeWidth="4.5" />
         <path d="M130 196 C 160 222 186 248 220 290" strokeWidth="5" />
@@ -38,7 +39,7 @@ export function RetinaIllustration() {
 
       <circle cx="130" cy="196" r="36" fill="url(#discGlow)" />
       <circle cx="130" cy="196" r="14" fill="#0A6D69" fillOpacity="0.35" />
-      <circle cx="268" cy="214" r="9" fill="#0F1E33" fillOpacity="0.45" />
+      <circle cx="268" cy="214" r="9" fill="#07111F" fillOpacity="0.5" />
       <circle cx="268" cy="214" r="22" fill="none" stroke="#FFFFFF" strokeOpacity="0.4" strokeWidth="1.5" />
     </svg>
   );

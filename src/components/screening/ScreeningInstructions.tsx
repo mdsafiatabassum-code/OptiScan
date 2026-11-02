@@ -12,26 +12,25 @@ const requirements = [
 
 export function ScreeningInstructions() {
   return (
-    <aside className="surface-card flex flex-col gap-6 p-6 sm:p-8">
+    <aside className="surface-card flex flex-col gap-6 p-6 sm:p-8 lg:sticky lg:top-24">
       <div>
-        <h2 className="text-lg font-bold text-navy-900">Before you begin</h2>
-        <p className="mt-2 text-sm leading-relaxed text-navy-600">
+        <h2 className="text-lg font-bold text-neutral-50">Before you begin</h2>
+        <p className="mt-2 text-sm leading-relaxed text-neutral-400">
           Good image quality makes a real difference. Follow these guidelines when preparing your photograph.
         </p>
       </div>
 
-      <ul className="flex flex-col gap-3.5">
+      <ul className="flex flex-col gap-4">
         {requirements.map((text) => (
-          <li key={text} className="flex gap-3 text-sm leading-relaxed text-navy-700">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+          <li key={text} className="flex gap-3 text-sm leading-relaxed text-neutral-300">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" aria-hidden="true" />
             {text}
           </li>
         ))}
       </ul>
 
       <InlineAlert tone="info" title="Your image is sent for analysis">
-        The photograph is sent to the analysis server for this request only. OptiScan does not store the image or
-        create a patient record.
+        The photograph is sent to the analysis server for this request only. OptiScan does not create a patient record.
       </InlineAlert>
     </aside>
   );

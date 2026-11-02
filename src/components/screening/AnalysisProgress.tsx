@@ -1,49 +1,89 @@
-import { Loader2 } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { CheckCircle2, Circle, Loader2, type LucideIcon } from 'lucide-react';
+import { cx } from '@/lib/classNames';
 
 interface AnalysisProgressProps {
   phase: 'uploading' | 'analysing';
   progress: number;
 }
 
-export function AnalysisProgress({ phase, progress }: AnalysisProgressProps) {
-  if (phase === 'uploading') {
-    const percent = Math.round(progress * 100);
-    return (
-      <div className="flex flex-col gap-2" role="status" aria-live="polite">
-        <div className="flex items-center justify-between text-sm font-semibold text-navy-800">
-          <span>Uploading image</span>
-          <span className="tabular-nums">{percent}%</span>
-        </div>
-        <div
-          role="progressbar"
-          aria-label="Upload progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={percent}
-          className="h-2 overflow-hidden rounded-full bg-navy-100"
+type StageState = 'done' | 'active' | 'pending';
+
+const stageIcons: Record<StageState, { icon: LucideIcon; className: string }> = {
+  done: { icon: CheckCircle2, className: 'text-success-300' },
+  active: { icon: Loader2, className: 'animate-spin text-primary-200' },
+  pending: { icon: Circle, className: 'text-neutral-500' },
+};
+
+function StageRow({
+  state,
+  title,
+  detail,
+  children,
+}: {
+  state: StageState;
+  title: string;
+  detail: string;
+  children?: ReactNode;
+}) {
+  const { icon: Icon, className } = stageIcons[state];
+  return (
+    <li className="flex gap-4">
+      <Icon className={cx('mt-0.5 h-5 w-5 shrink-0', className)} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p
+          className={cx(
+            'font-semibold',
+            state === 'pending' ? 'text-neutral-400' : 'text-neutral-50',
+          )}
         >
-          <div
-            className="h-full rounded-full bg-brand-600 transition-[width] duration-300 ease-out"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
+          {title}
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-neutral-400">{detail}</p>
+        {children}
       </div>
-    );
-  }
+    </li>
+  );
+}
+
+export function AnalysisProgress({ phase, progress }: AnalysisProgressProps) {
+  const percent = Math.round(progress * 100);
+  const isAnalysing = phase === 'analysing';
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="flex items-start gap-3 rounded-xl border border-brand-100 bg-brand-50/70 p-4"
-    >
-      <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-brand-700" aria-hidden="true" />
-      <div>
-        <p className="font-semibold text-navy-900">Analysing image</p>
-        <p className="mt-1 text-sm leading-relaxed text-navy-600">
-          The model is reviewing the photograph. This can take a moment.
-        </p>
-      </div>
+    <div role="status" aria-live="polite" className="glass-panel p-5 sm:p-6">
+      <ol className="flex flex-col gap-5">
+        <StageRow
+          state={isAnalysing ? 'done' : 'active'}
+          title="Uploading image"
+          detail={isAnalysing ? 'Upload complete.' : `${percent}% sent to the analysis server.`}
+        >
+          {!isAnalysing && (
+            <div
+              role="progressbar"
+              aria-label="Upload progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={percent}
+              className="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
+            >
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary-300 to-primary-500 shadow-glow transition-[width] duration-300 ease-out"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+          )}
+        </StageRow>
+        <StageRow
+          state={isAnalysing ? 'active' : 'pending'}
+          title="Model analysis"
+          detail={
+            isAnalysing
+              ? 'The model is reviewing the photograph. This can take a moment.'
+              : 'Starts when the upload finishes.'
+          }
+        />
+      </ol>
     </div>
   );
 }

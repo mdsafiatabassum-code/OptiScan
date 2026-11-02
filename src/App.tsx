@@ -1,4 +1,6 @@
+import { DashboardPage } from '@/pages/DashboardPage';
 import { LandingPage } from '@/pages/LandingPage';
+import { ModelPage } from '@/pages/ModelPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ScreeningPage } from '@/pages/ScreeningPage';
 import { useLocation } from '@/lib/routing';
@@ -13,8 +15,12 @@ export default function App() {
   switch (normalisePath(pathname)) {
     case '/':
       return <LandingPage />;
+    case '/dashboard':
+      return <DashboardPage />;
     case '/screening':
       return <ScreeningPage />;
+    case '/model':
+      return <ModelPage />;
     default:
       return <NotFoundPage />;
   }

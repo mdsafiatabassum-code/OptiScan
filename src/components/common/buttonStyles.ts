@@ -11,11 +11,11 @@ export interface ButtonStyleOptions {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-brand-700 text-white shadow-md shadow-brand-700/20 hover:-translate-y-0.5 hover:bg-brand-800 hover:shadow-lg',
+    'bg-gradient-to-br from-primary-300 to-primary-500 text-canvas shadow-lg shadow-primary-500/20 hover:-translate-y-0.5 hover:shadow-primary-400/40 hover:brightness-110',
   secondary:
-    'border border-navy-200 bg-white text-navy-800 shadow-sm hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-800',
-  ghost: 'text-navy-700 hover:bg-navy-50 hover:text-navy-900',
-  danger: 'border border-error-200 bg-white text-error-700 hover:bg-error-50',
+    'border border-white/15 bg-white/5 text-neutral-100 backdrop-blur hover:-translate-y-0.5 hover:border-primary-300/50 hover:bg-white/10 hover:text-white',
+  ghost: 'text-neutral-300 hover:bg-white/5 hover:text-neutral-50',
+  danger: 'border border-danger-400/30 bg-danger-500/10 text-danger-200 hover:bg-danger-500/20',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -26,7 +26,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 
 export function buttonClasses({ variant = 'primary', size = 'md', fullWidth = false }: ButtonStyleOptions = {}) {
   return cx(
-    'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0',
+    'focus-ring inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:brightness-100',
     variantClasses[variant],
     sizeClasses[size],
     fullWidth && 'w-full',
