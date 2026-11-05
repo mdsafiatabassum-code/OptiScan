@@ -1,6 +1,8 @@
 import { ArrowLeft, X } from 'lucide-react';
 import { Logo } from '@/components/common/Logo';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { DASHBOARD_LINKS } from '@/config/navigation';
+import { useT } from '@/lib/i18n';
 import { cx } from '@/lib/classNames';
 import { Link } from '@/lib/router';
 import { isActiveRoute, useLocation } from '@/lib/routing';
@@ -12,6 +14,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   const location = useLocation();
+  const t = useT();
 
   return (
     <>
@@ -37,7 +40,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close navigation"
+            aria-label={t.navCloseNavigation}
             className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg text-neutral-300 hover:bg-white/5 hover:text-white lg:hidden"
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -45,12 +48,12 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
         </div>
 
         <nav aria-label="Dashboard" className="flex flex-1 flex-col gap-1 px-3 py-6">
-          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Workspace</p>
-          {DASHBOARD_LINKS.map(({ label, to, icon: Icon }) => {
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{t.workspace}</p>
+          {DASHBOARD_LINKS.map(({ labelKey, to, icon: Icon }) => {
             const isActive = isActiveRoute(to, location);
             return (
               <Link
-                key={label}
+                key={labelKey}
                 to={to}
                 onClick={onClose}
                 aria-current={isActive ? 'page' : undefined}
@@ -62,7 +65,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                {label}
+                {t[labelKey]}
               </Link>
             );
           })}
@@ -75,10 +78,13 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
             className="focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-neutral-300 transition-colors hover:bg-white/5 hover:text-neutral-50"
           >
             <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
-            Back to website
+            {t.navBackToWebsite}
           </Link>
           <div className="mt-3 rounded-xl border border-warning-400/20 bg-warning-400/5 p-3 text-xs leading-relaxed text-neutral-300">
-            Results are model-generated estimates, not confirmed diagnoses.
+            {t.sidebarDisclaimer}
+          </div>
+          <div className="mt-3">
+            <LanguageSwitcher compact />
           </div>
         </div>
       </aside>

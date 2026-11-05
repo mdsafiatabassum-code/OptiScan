@@ -1,24 +1,27 @@
-import { Clock, Cpu, LayoutDashboard, ScanSearch, type LucideIcon } from 'lucide-react';
+import { Clock, Cpu, LayoutDashboard, ScanSearch, Stethoscope, type LucideIcon } from 'lucide-react';
 
 export interface NavLink {
-  label: string;
+  labelKey: 'navHowItWorks' | 'navModel' | 'navLimitations' | 'navAbout';
   to: string;
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { label: 'How It Works', to: '/#how-it-works' },
-  { label: 'Model', to: '/#model' },
-  { label: 'Limitations', to: '/#limitations' },
-  { label: 'About', to: '/#about' },
+  { labelKey: 'navHowItWorks', to: '/#how-it-works' },
+  { labelKey: 'navModel', to: '/#model' },
+  { labelKey: 'navLimitations', to: '/#limitations' },
+  { labelKey: 'navAbout', to: '/#about' },
 ];
 
-export interface DashboardLink extends NavLink {
+export interface DashboardLink {
+  labelKey: 'navOverview' | 'navNewScreening' | 'navScreeningHistory' | 'navAboutModel' | 'navDoctorReview';
+  to: string;
   icon: LucideIcon;
 }
 
 export const DASHBOARD_LINKS: DashboardLink[] = [
-  { label: 'Overview', to: '/dashboard', icon: LayoutDashboard },
-  { label: 'New Screening', to: '/screening', icon: ScanSearch },
-  { label: 'History', to: '/history', icon: Clock },
-  { label: 'About the Model', to: '/model', icon: Cpu },
+  { labelKey: 'navOverview', to: '/dashboard', icon: LayoutDashboard },
+  { labelKey: 'navNewScreening', to: '/screening', icon: ScanSearch },
+  { labelKey: 'navScreeningHistory', to: '/history', icon: Clock },
+  { labelKey: 'navDoctorReview', to: '/doctor-review', icon: Stethoscope },
+  { labelKey: 'navAboutModel', to: '/model', icon: Cpu },
 ];

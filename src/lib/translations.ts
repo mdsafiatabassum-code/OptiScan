@@ -6,7 +6,11 @@ export const LANGUAGES: { code: Language; label: string; nativeLabel: string }[]
   { code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ' },
 ];
 
-export type TranslationDict = typeof translations.en;
+type TranslationKeys = {
+  [K in keyof typeof translations.en]: string;
+};
+
+export type TranslationDict = TranslationKeys;
 
 export const translations = {
   en: {
@@ -846,4 +850,4 @@ export const translations = {
     doctorBackToReview: 'ಸಮೀಕ್ಷಾ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ',
     doctorCaseTitle: 'ಕೇಸ್ ಸಮೀಕ್ಷೆ',
   },
-} as const;
+};
