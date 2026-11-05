@@ -1,19 +1,22 @@
 import { useRef, type ChangeEvent } from 'react';
-import { Microscope, Upload } from 'lucide-react';
+import { AlertTriangle, Microscope, Upload } from 'lucide-react';
 import { AnalysisProgress } from '@/components/screening/AnalysisProgress';
 import { Button } from '@/components/common/Button';
 import { InlineAlert } from '@/components/common/InlineAlert';
 import { ImageDropzone } from '@/components/screening/ImageDropzone';
 import { QualityChecksList } from '@/components/screening/QualityChecksList';
 import { SelectedImagePanel } from '@/components/screening/SelectedImagePanel';
+import { ClientQualityCard } from '@/components/screening/ClientQualityCard';
 import { IMAGE_INPUT_ACCEPT } from '@/lib/imageValidation';
 import type { AnalysisState } from '@/types/screening';
+import type { QualityCheckState } from '@/hooks/useClientQualityCheck';
 
 interface ImageUploadCardProps {
   file: File | null;
   previewUrl: string | null;
   uploadError: string | null;
   analysis: AnalysisState;
+  qualityCheck: QualityCheckState;
   onSelectFile: (file: File) => void;
   onClearImage: () => void;
   onAnalyse: () => void;
@@ -24,6 +27,7 @@ export function ImageUploadCard({
   previewUrl,
   uploadError,
   analysis,
+  qualityCheck,
   onSelectFile,
   onClearImage,
   onAnalyse,
@@ -43,6 +47,8 @@ export function ImageUploadCard({
   const hasImage = file !== null && previewUrl !== null;
   const isBusy = analysis.phase === 'uploading' || analysis.phase === 'analysing';
   const isQualityRejected = analysis.phase === 'quality_rejected';
+  const isClientQualityPoor =
+    qualityCheck.status === 'ready' && qualityCheck.result.overall === 'poor';
 
   return (
     <section className="surface-card flex flex-col gap-8 p-6 sm:p-8" aria-labelledby="upload-heading">
@@ -68,14 +74,17 @@ export function ImageUploadCard({
       />
 
       {hasImage ? (
-        <SelectedImagePanel
-          key={previewUrl}
-          file={file}
-          previewUrl={previewUrl}
-          isScanning={isBusy}
-          onReplace={openFilePicker}
-          onRemove={onClearImage}
-        />
+        <div className="flex flex-col gap-6">
+          <SelectedImagePanel
+            key={previewUrl}
+            file={file}
+            previewUrl={previewUrl}
+            isScanning={isBusy}
+            onReplace={openFilePicker}
+            onRemove={onClearImage}
+          />
+          <ClientQualityCard state={qualityCheck} />
+        </div>
       ) : (
         <ImageDropzone onBrowse={openFilePicker} onFileDrop={onSelectFile} />
       )}
@@ -112,6 +121,26 @@ export function ImageUploadCard({
               <Upload className="h-5 w-5" aria-hidden="true" />
               Choose a different image
             </Button>
+          ) : isClientQualityPoor && analysis.phase !== 'complete' ? (
+            <div className="flex flex-col gap-4">
+              <InlineAlert tone="warning" title="Low image quality detected">
+                <span className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-300" aria-hidden="true" />
+                  This image may be too low-quality for reliable results. Consider choosing a better photograph, or
+                  proceed at your own discretion.
+                </span>
+              </InlineAlert>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" fullWidth onClick={openFilePicker} disabled={isBusy}>
+                  <Upload className="h-5 w-5" aria-hidden="true" />
+                  Choose another image
+                </Button>
+                <Button variant="secondary" size="lg" fullWidth onClick={onAnalyse} disabled={isBusy} aria-busy={isBusy}>
+                  <Microscope className="h-5 w-5" aria-hidden="true" />
+                  Analyse anyway
+                </Button>
+              </div>
+            </div>
           ) : (
             <Button size="lg" fullWidth onClick={onAnalyse} disabled={isBusy} aria-busy={isBusy}>
               <Microscope className="h-5 w-5" aria-hidden="true" />

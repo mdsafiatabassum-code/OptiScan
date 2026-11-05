@@ -1,12 +1,46 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ImageUploadCard } from '@/components/screening/ImageUploadCard';
 import { ResultsView } from '@/components/screening/ResultsView';
 import { ScreeningInstructions } from '@/components/screening/ScreeningInstructions';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useScreeningFlow } from '@/hooks/useScreeningFlow';
+import { useClientQualityCheck } from '@/hooks/useClientQualityCheck';
+import { useHistory } from '@/hooks/useHistory';
+import { generateThumbnail } from '@/lib/history';
+import type { ScreeningReport } from '@/types/screening';
 
 export function ScreeningPage() {
-  const flow = useScreeningFlow();
+  const history = useHistory();
+  const previewUrlRef = useRef<string | null>(null);
+
+  const handleComplete = useCallback(
+    async (report: ScreeningReport) => {
+      const previewUrl = previewUrlRef.current;
+      if (!previewUrl) return;
+      try {
+        const thumbnail = await generateThumbnail(previewUrl);
+        history.add({
+          id: crypto.randomUUID(),
+          timestamp: report.generatedAt,
+          predictedLabel: report.predictedGrade.label,
+          predictedIndex: report.predictedGrade.index,
+          probabilities: report.probabilities,
+          qualityStatus: report.quality.status,
+          thumbnail,
+          reportId: report.reportId,
+          reportJson: JSON.stringify(report),
+        });
+      } catch {
+        // thumbnail generation failed — skip history save silently
+      }
+    },
+    [history],
+  );
+
+  const flow = useScreeningFlow(handleComplete);
+  previewUrlRef.current = flow.previewUrl;
+
+  const qualityCheck = useClientQualityCheck(flow.previewUrl);
 
   useEffect(() => {
     document.title = 'New Screening | OptiScan';
@@ -27,6 +61,7 @@ export function ScreeningPage() {
             previewUrl={flow.previewUrl}
             uploadError={flow.uploadError}
             analysis={flow.analysis}
+            qualityCheck={qualityCheck}
             onSelectFile={flow.selectFile}
             onClearImage={flow.clearImage}
             onAnalyse={flow.analyse}

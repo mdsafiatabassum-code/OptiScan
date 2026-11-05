@@ -1,4 +1,4 @@
-import { Cpu, LayoutDashboard, ScanSearch, type LucideIcon } from 'lucide-react';
+import { Clock, Cpu, LayoutDashboard, ScanSearch, type LucideIcon } from 'lucide-react';
 
 export interface NavLink {
   label: string;
@@ -19,5 +19,6 @@ export interface DashboardLink extends NavLink {
 export const DASHBOARD_LINKS: DashboardLink[] = [
   { label: 'Overview', to: '/dashboard', icon: LayoutDashboard },
   { label: 'New Screening', to: '/screening', icon: ScanSearch },
+  { label: 'History', to: '/history', icon: Clock },
   { label: 'About the Model', to: '/model', icon: Cpu },
 ];

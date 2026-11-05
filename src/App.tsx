@@ -1,4 +1,5 @@
 import { DashboardPage } from '@/pages/DashboardPage';
+import { HistoryPage } from '@/pages/HistoryPage';
 import { LandingPage } from '@/pages/LandingPage';
 import { ModelPage } from '@/pages/ModelPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
@@ -19,6 +20,8 @@ export default function App() {
       return <DashboardPage />;
     case '/screening':
       return <ScreeningPage />;
+    case '/history':
+      return <HistoryPage />;
     case '/model':
       return <ModelPage />;
     default:

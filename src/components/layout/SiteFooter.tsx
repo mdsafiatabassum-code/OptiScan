@@ -33,6 +33,11 @@ export function SiteFooter() {
                   Dashboard
                 </Link>
               </li>
+              <li>
+                <Link to="/history" className="focus-ring rounded text-neutral-400 transition-colors hover:text-primary-200">
+                  Screening History
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

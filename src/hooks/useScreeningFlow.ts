@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalysisError, analyseRetinalImage } from '@/services/retinalAnalysis';
 import { validateImageFile } from '@/lib/imageValidation';
-import type { AnalysisState } from '@/types/screening';
+import type { AnalysisState, ScreeningReport } from '@/types/screening';
 
 const UNEXPECTED_ERROR_MESSAGE = 'The analysis could not be completed, so no report was generated. Please try again.';
 
-export function useScreeningFlow() {
+export function useScreeningFlow(onComplete?: (report: ScreeningReport) => void) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -68,7 +68,10 @@ export function useScreeningFlow() {
           if (!controller.signal.aborted) setAnalysis({ phase: 'analysing' });
         },
       });
-      if (!controller.signal.aborted) setAnalysis({ phase: 'complete', report });
+      if (!controller.signal.aborted) {
+        setAnalysis({ phase: 'complete', report });
+        onComplete?.(report);
+      }
     } catch (error) {
       if (controller.signal.aborted) return;
       if (error instanceof AnalysisError && error.code === 'quality_rejected') {
@@ -80,7 +83,7 @@ export function useScreeningFlow() {
     } finally {
       if (controllerRef.current === controller) controllerRef.current = null;
     }
-  }, [file, cancelAnalysis]);
+  }, [file, cancelAnalysis, onComplete]);
 
   return {
     file,
